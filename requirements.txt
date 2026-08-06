@@ -1,0 +1,5 @@
+chromadb
+presidio-analyzer
+presidio-anonymizer
+sentence-transformers
+spacy
