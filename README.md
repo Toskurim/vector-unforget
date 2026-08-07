@@ -4,6 +4,7 @@ VectorUnforget is a specialized Python engine designed to enforce GDPR complianc
 
 ## 🚀 Key Features
 
+- **Multi-Vector DB Support (Adapter Pattern):** Out-of-the-box integration with **ChromaDB** and **Qdrant**, with an extensible architecture for adding enterprise vector stores (Pinecone, Pgvector, Weaviate).
 - **Cascading PII Erasure:** Identifies primary entries, extracts secondary PII (emails, phone numbers), and purges orphaned entries lacking explicit name references.
 - **Name Variant & Alias Engine:** Automatically generates and matches name permutations (e.g., `Mario Rossi`, `M. Rossi`, `Rossi M.`).
 - **Cryptographic Audit Trail:** Generates a tamper-proof SHA-256 signed JSON certificate of erasure for compliance auditors and DPOs.
@@ -24,20 +25,40 @@ VectorUnforget is a specialized Python engine designed to enforce GDPR complianc
    python -m spacy download en_core_web_sm
    ```
 
-## 🛠️ Usage Example
+## 🛠️ Usage Examples
+
+### 1. ChromaDB Integration
 
 ```python
 import chromadb
-from vector_unforget.engine import VectorUnforgetEngine
+from vector_unforget import VectorUnforgetEngine, ChromaAdapter
 
-# 1. Initialize Vector DB
+# Initialize Vector DB & Collection
 chroma_client = chromadb.Client()
 collection = chroma_client.create_collection(name="production_rag_db")
 
-# 2. Initialize Engine
-engine = VectorUnforgetEngine(collection=collection, db_name="production_rag_db")
+# Initialize Adapter & Engine
+adapter = ChromaAdapter(collection=collection)
+engine = VectorUnforgetEngine(adapter=adapter, db_name="chroma_production")
 
-# 3. Execute Cascading Purge
+# Execute Cascading Purge
+audit_log = engine.purge_user("Mario Rossi")
+```
+
+### 2. Qdrant Integration
+
+```python
+from qdrant_client import QdrantClient
+from vector_unforget import VectorUnforgetEngine, QdrantAdapter
+
+# Initialize Qdrant Client
+client = QdrantClient(url="http://localhost:6333")
+
+# Initialize Adapter & Engine
+adapter = QdrantAdapter(client=client, collection_name="production_rag_db")
+engine = VectorUnforgetEngine(adapter=adapter, db_name="qdrant_production")
+
+# Execute Cascading Purge
 audit_log = engine.purge_user("Mario Rossi")
 ```
 
