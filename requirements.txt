@@ -3,3 +3,4 @@ presidio-analyzer
 presidio-anonymizer
 sentence-transformers
 spacy
+qdrant-client
