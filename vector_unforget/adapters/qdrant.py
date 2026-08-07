@@ -16,7 +16,6 @@ class QdrantAdapter(BaseVectorAdapter):
         self.text_field = text_field
 
     def fetch_all_documents(self) -> List[Dict[str, Any]]:
-        # Scroll attraverso tutti i punti presenti nella collezione Qdrant
         records, _ = self.client.scroll(
             collection_name=self.collection_name,
             limit=10000,
@@ -38,8 +37,17 @@ class QdrantAdapter(BaseVectorAdapter):
     def delete_documents_by_ids(self, ids: List[str]) -> int:
         if not ids:
             return 0
+        
+        # Converte in int gli ID se sono numerici (per compatibilità con Qdrant)
+        parsed_ids = []
+        for i in ids:
+            if isinstance(i, str) and i.isdigit():
+                parsed_ids.append(int(i))
+            else:
+                parsed_ids.append(i)
+
         self.client.delete(
             collection_name=self.collection_name,
-            points_selector=models.PointIdsList(points=ids)
+            points_selector=models.PointIdsList(points=parsed_ids)
         )
         return len(ids)

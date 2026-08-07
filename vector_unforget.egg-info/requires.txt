@@ -1,0 +1,15 @@
+spacy>=3.0.0
+
+[all]
+chromadb
+qdrant-client
+psycopg[binary]
+
+[chroma]
+chromadb
+
+[pgvector]
+psycopg[binary]
+
+[qdrant]
+qdrant-client

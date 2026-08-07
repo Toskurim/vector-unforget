@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vector-unforget"
+version = "2.1.0"
+authors = [
+  { name="Andrea Brodini", email="info@meccbroter.it" },
+]
+description = "GDPR Right-to-be-Forgotten Engine for Vector Databases with Cascading Erasure & SHA-256 Audit Trails."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU Affero General Public License v3 (AGPLv3)",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Security :: Cryptography",
+]
+dependencies = [
+    "spacy>=3.0.0",
+]
+
+[project.optional-dependencies]
+chroma = ["chromadb"]
+qdrant = ["qdrant-client"]
+pgvector = ["psycopg[binary]"]
+all = ["chromadb", "qdrant-client", "psycopg[binary]"]
+
+[project.urls]
+"Homepage" = "https://github.com/Toskurim/vector-unforget"
+"Bug Tracker" = "https://github.com/Toskurim/vector-unforget/issues"
