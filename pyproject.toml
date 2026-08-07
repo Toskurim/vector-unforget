@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vector-unforget"
-version = "2.1.0"
+version = "2.2.0"
 authors = [
   { name="Andrea Brodini", email="info@meccbroter.it" },
 ]
