@@ -1,65 +1,70 @@
 # VectorUnforget 🛡️ Vector DB Right-to-be-Forgotten Engine
 
-VectorUnforget is a specialized Python engine designed to enforce GDPR compliance (Right to be Forgotten) across Vector Databases used in RAG (Retrieval-Augmented Generation) architectures.
+VectorUnforget is an enterprise-grade Python engine designed to enforce GDPR compliance (Right to be Forgotten) across Vector Databases used in RAG (Retrieval-Augmented Generation) architectures.
 
 ## 🚀 Key Features
 
-- **Multi-Vector DB Support (Adapter Pattern):** Out-of-the-box integration with **ChromaDB** and **Qdrant**, with an extensible architecture for adding enterprise vector stores (Pinecone, Pgvector, Weaviate).
-- **Cascading PII Erasure:** Identifies primary entries, extracts secondary PII (emails, phone numbers), and purges orphaned entries lacking explicit name references.
-- **Name Variant & Alias Engine:** Automatically generates and matches name permutations (e.g., `Mario Rossi`, `M. Rossi`, `Rossi M.`).
-- **Cryptographic Audit Trail:** Generates a tamper-proof SHA-256 signed JSON certificate of erasure for compliance auditors and DPOs.
+- **Multi-Vector DB Support (Adapter Pattern):** Out-of-the-box integration with **ChromaDB**, **Qdrant**, and **Pgvector (PostgreSQL)**, with an extensible architecture for enterprise vector stores.
+- **Dry Run Mode (Simulation):** Preview vectors and secondary PII targeted for removal before committing destructive deletes to production databases.
+- **Advanced PII Extraction (NER & Regex):** Identifies primary entries and automatically extracts secondary PII (Emails, Phone Numbers, Italian Fiscal Codes, Credit Cards, IBANs, and Named Entities via spaCy).
+- **Cascading PII Erasure:** Automatically purges orphaned vector entries that share secondary PII even if the target name is not explicitly mentioned.
+- **Name Variant Engine:** Automatically generates and matches name permutations (e.g., `Mario Rossi`, `M. Rossi`, `Rossi M.`).
+- **Tamper-Proof Audit Trail:** Generates a SHA-256 signed JSON certificate of erasure for compliance auditors and DPOs.
 
 ## 📦 Installation & Setup
 
-1. Clone the repository:
+1. Install via pip (with optional extra dependencies):
    ```bash
-   git clone https://github.com/Toskurim/vector-unforget.git
-   cd vector-unforget
+   # Install core package
+   pip install vector-unforget
+
+   # Install with specific adapters (e.g., Qdrant or Pgvector)
+   pip install "vector-unforget[qdrant]"
+   pip install "vector-unforget[pgvector]"
+
+   # Or install all adapters:
+   pip install "vector-unforget[all]"
    ```
 
-2. Set up virtual environment & dependencies:
+2. Download spaCy model for NER support:
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: .\venv\Scripts\Activate.ps1
-   pip install -r requirements.txt
    python -m spacy download en_core_web_sm
    ```
 
 ## 🛠️ Usage Examples
 
-### 1. ChromaDB Integration
-
-```python
-import chromadb
-from vector_unforget import VectorUnforgetEngine, ChromaAdapter
-
-# Initialize Vector DB & Collection
-chroma_client = chromadb.Client()
-collection = chroma_client.create_collection(name="production_rag_db")
-
-# Initialize Adapter & Engine
-adapter = ChromaAdapter(collection=collection)
-engine = VectorUnforgetEngine(adapter=adapter, db_name="chroma_production")
-
-# Execute Cascading Purge
-audit_log = engine.purge_user("Mario Rossi")
-```
-
-### 2. Qdrant Integration
+### 1. Dry Run (Preview Mode)
 
 ```python
 from qdrant_client import QdrantClient
 from vector_unforget import VectorUnforgetEngine, QdrantAdapter
 
-# Initialize Qdrant Client
-client = QdrantClient(url="http://localhost:6333")
+client = QdrantClient("http://localhost:6333")
+adapter = QdrantAdapter(client=client, collection_name="production_rag")
+engine = VectorUnforgetEngine(adapter=adapter, db_name="qdrant_prod")
 
-# Initialize Adapter & Engine
-adapter = QdrantAdapter(client=client, collection_name="production_rag_db")
-engine = VectorUnforgetEngine(adapter=adapter, db_name="qdrant_production")
+# Run simulation without deleting data
+preview = engine.purge_user("Mario Rossi", dry_run=True)
+print("Vectors to be purged:", preview["vector_ids_to_be_purged"])
+print("Secondary PII extracted:", preview["secondary_pii_extracted"])
+```
 
-# Execute Cascading Purge
-audit_log = engine.purge_user("Mario Rossi")
+### 2. Pgvector (PostgreSQL) Integration
+
+```python
+from vector_unforget import VectorUnforgetEngine, PgvectorAdapter
+
+adapter = PgvectorAdapter(
+    connection_string="postgresql://user:password@localhost:5432/rag_db",
+    table_name="embeddings",
+    id_column="id",
+    text_column="content"
+)
+
+engine = VectorUnforgetEngine(adapter=adapter, db_name="pgvector_prod")
+
+# Execute real cascading purge
+audit_log = engine.purge_user("Mario Rossi", dry_run=False)
 ```
 
 ## 📄 License
