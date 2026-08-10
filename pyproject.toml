@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "vector-unforget"
 version = "2.2.0"
 authors = [
-  { name="Andrea Brodini", email="info@meccbroter.it" },
+  { name="Toskurim", email="toskurim@gmail.com" },
 ]
 description = "GDPR Right-to-be-Forgotten Engine for Vector Databases with Cascading Erasure & SHA-256 Audit Trails."
 readme = "README.md"
