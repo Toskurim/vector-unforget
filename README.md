@@ -14,16 +14,16 @@ It ensures complete cascaded erasure of primary and secondary PII, provides cryp
 
 - **Cascading PII Erasure:** Erases seed entities along with multi-hop correlated identifiers (SSN, Tax IDs, IP addresses, IBANs, emails, phone numbers) using dynamic graph resolution.
 - **Enterprise DB Adapters:** Native support for **Pinecone**, **Weaviate**, **Qdrant**, **Pgvector**, and **ChromaDB**.
-- **Framework Middleware:** Drop-in adapters for **LangChain** (\VectorUnforgetRetriever\) and **LlamaIndex** (\VectorUnforgetNodePostprocessor\).
-- **Adversarial Verification:** \ReverseRAGVerifier\ executes adversarial RAG queries post-erasure and calculates the *Zero Residual Leakage Score*.
-- **Semantic Vector Unlearning:** \SubspaceProjector\ eliminates sensitive concepts directly in embedding space via orthogonal subspace projection without requiring index re-training.
+- **Framework Middleware:** Drop-in adapters for **LangChain** (`VectorUnforgetRetriever`) and **LlamaIndex** (`VectorUnforgetNodePostprocessor`).
+- **Adversarial Verification:** `ReverseRAGVerifier` executes adversarial RAG queries post-erasure and calculates the *Zero Residual Leakage Score*.
+- **Semantic Vector Unlearning:** `SubspaceProjector` eliminates sensitive concepts directly in embedding space via orthogonal subspace projection without requiring index re-training.
 - **Auditing & Safety:** Dry-run execution modes and tamper-evident SHA-256 signed audit certificates.
 
 ---
 
 ## Architecture
 
-\\	ext
+```text
 [ Primary Entity / Seed ]
            │
            ▼
@@ -50,21 +50,23 @@ It ensures complete cascaded erasure of primary and secondary PII, provides cryp
               ┌─────────────────────┐
               │ ReverseRAGVerifier  │ ──► Zero Residual Leakage Score
               └─────────────────────┘
-\
+```
+
 ---
 
 ## Quickstart
 
 ### 1. Installation
 
-\\ash
+```bash
 git clone https://github.com/Toskurim/vector-unforget.git
 cd vector-unforget
 pip install -r requirements.txt
-\
+```
+
 ### 2. Multi-Hop Cascading Erasure
 
-\\python
+```python
 from vector_unforget.graph_resolver import PIIEntityGraph
 
 graph = PIIEntityGraph(decay_factor=0.8)
@@ -80,10 +82,11 @@ affected_chunks = graph.get_affected_chunks(resolved)
 
 print("Entities to purge:", resolved)
 print("Affected chunks:", affected_chunks)
-\
+```
+
 ### 3. Pinecone / Weaviate Adapter Usage
 
-\\python
+```python
 from vector_unforget.adapters import PineconeAdapter
 # from vector_unforget.adapters import WeaviateAdapter
 
@@ -95,10 +98,11 @@ print("Simulation result:", dry_run_report)
 
 # Permanent hard deletion
 purge_report = adapter.delete_records(target_ids=["vec-101", "vec-102"], dry_run=False)
-\
+```
+
 ### 4. Reverse RAG Adversarial Verification
 
-\\python
+```python
 from vector_unforget.verifier import ReverseRAGVerifier
 
 verifier = ReverseRAGVerifier(adapter)
@@ -109,10 +113,11 @@ report = verifier.verify_erasure(
 
 print(f"Compliance status: {report['is_fully_compliant']}")
 print(f"Zero Leakage Score: {report['zero_residual_leakage_score']}%")
-\
+```
+
 ### 5. Semantic Subspace Projection (Vector Unlearning)
 
-\\python
+```python
 from vector_unforget.subspace_projection import SubspaceProjector
 
 projector = SubspaceProjector()
@@ -122,21 +127,23 @@ unlearned_vector = projector.project_orthogonal(
     target_vector=[0.8, 0.6, 0.0],
     concept_vector=[1.0, 0.0, 0.0],
 )
-\
+```
+
 ---
 
 ## Running Tests
 
 Run the full automated test suite:
 
-\\ash
+```bash
 python -m pytest
-\
+```
+
 ---
 
 ## License
 
-This project is licensed under the **GNU Affero General Public License v3.0 (AGPLv3)**. See the \LICENSE\ file for details.
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPLv3)**. See the `LICENSE` file for details.
 
 - **Author:** Toskurim
 - **Contact:** toskurim@gmail.com
