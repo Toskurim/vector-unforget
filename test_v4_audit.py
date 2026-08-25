@@ -1,6 +1,6 @@
 import chromadb
 import re
-from auditor import GDPRLogAuditor
+from vector_unforget.auditor import GDPRLogAuditor
 
 print("Avvio VectorUnforget Engine v4 (con GDPR Audit)...")
 
