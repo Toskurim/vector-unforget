@@ -9,6 +9,7 @@ from .chroma import ChromaAdapter
 from .pgvector import PgvectorAdapter
 from .qdrant import QdrantAdapter
 from .pinecone import PineconeAdapter
+from .weaviate import WeaviateAdapter
 
 __all__ = [
     "BaseVectorAdapter",
@@ -16,4 +17,5 @@ __all__ = [
     "PgvectorAdapter",
     "QdrantAdapter",
     "PineconeAdapter",
+    "WeaviateAdapter",
 ]
