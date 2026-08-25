@@ -1,75 +1,142 @@
-# VectorUnforget 🛡️ Vector DB Right-to-be-Forgotten Engine
+# VectorUnforget
 
-VectorUnforget is an enterprise-grade Python engine designed to enforce GDPR/CCPA compliance (Right to be Forgotten) across Vector Databases used in RAG (Retrieval-Augmented Generation) architectures.
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Tests](https://img.shields.io/badge/tests-100%25%20passing-brightgreen.svg)]()
 
-## 🚀 Key Features
+**VectorUnforget** is a modular, zero-leakage framework designed to implement the **GDPR/CCPA "Right to be Forgotten"** across enterprise vector databases and Retrieval-Augmented Generation (RAG) pipelines.
 
-- **Multi-Vector DB Support (Adapter Pattern):** Out-of-the-box integration with **ChromaDB**, **Qdrant**, and **Pgvector (PostgreSQL)**, with an extensible architecture for enterprise vector stores.
-- **Global PII Recognition (NER & Regex):** Identifies primary entries and automatically extracts secondary PII globally:
-  - **Universal:** Emails, International Phone Numbers, Credit Cards, IBANs, IPv4/IPv6 Addresses.
-  - **National Identifiers:** US SSN, UK NINO, Italian Fiscal Code, Canadian SIN, German Steuer-ID.
-  - **Multilingual NER:** Powered by spaCy for custom entities (PERSON, ORG, GPE, FAC).
-- **Dry Run Mode (Simulation):** Preview vectors and secondary PII targeted for removal before committing destructive deletes to production databases.
-- **Cascading PII Erasure:** Automatically purges orphaned vector entries that share secondary PII even if the target name is not explicitly mentioned.
-- **Name Variant Engine:** Automatically generates and matches name permutations (e.g., `Mario Rossi`, `M. Rossi`, `Rossi M.`).
-- **Tamper-Proof Audit Trail:** Generates a SHA-256 signed JSON certificate of erasure for compliance auditors and DPOs.
+It ensures complete cascaded erasure of primary and secondary PII, provides cryptographic SHA-256 audit trails, runs adversarial RAG verification queries, and enables mathematical vector unlearning via orthogonal subspace projection.
 
-## 📦 Installation & Setup
+---
 
-1. Install via pip (with optional extra dependencies):
-   ```bash
-   # Install core package
-   pip install vector-unforget
+## Key Features
 
-   # Install with specific adapters (e.g., Qdrant or Pgvector)
-   pip install "vector-unforget[qdrant]"
-   pip install "vector-unforget[pgvector]"
+- **Cascading PII Erasure:** Erases seed entities along with multi-hop correlated identifiers (SSN, Tax IDs, IP addresses, IBANs, emails, phone numbers) using dynamic graph resolution.
+- **Enterprise DB Adapters:** Native support for **Pinecone**, **Weaviate**, **Qdrant**, **Pgvector**, and **ChromaDB**.
+- **Framework Middleware:** Drop-in adapters for **LangChain** (\VectorUnforgetRetriever\) and **LlamaIndex** (\VectorUnforgetNodePostprocessor\).
+- **Adversarial Verification:** \ReverseRAGVerifier\ executes adversarial RAG queries post-erasure and calculates the *Zero Residual Leakage Score*.
+- **Semantic Vector Unlearning:** \SubspaceProjector\ eliminates sensitive concepts directly in embedding space via orthogonal subspace projection without requiring index re-training.
+- **Auditing & Safety:** Dry-run execution modes and tamper-evident SHA-256 signed audit certificates.
 
-   # Or install all adapters:
-   pip install "vector-unforget[all]"
-   ```
+---
 
-2. Download spaCy model for NER support:
-   ```bash
-   python -m spacy download en_core_web_sm
-   ```
+## Architecture
 
-## 🛠️ Usage Examples
+\\	ext
+[ Primary Entity / Seed ]
+           │
+           ▼
+┌───────────────────────┐
+│   PIIEntityGraph      │ ──► Multi-hop transitive entity discovery
+└───────────────────────┘
+           │
+           ▼
+┌───────────────────────┐
+│ VectorUnforgetEngine  │ ──► Cascading metadata/vector scanner
+└───────────────────────┘
+     │             │
+     ▼             ▼
+┌─────────┐   ┌────────────────────────┐
+│ Dry Run │   │ Database Adapter       │ (Qdrant, Pgvector, Chroma, Pinecone, Weaviate)
+└─────────┘   └────────────────────────┘
+                       │
+                       ▼
+              ┌──────────────────┐
+              │ Auditor (SHA256) │ ──► Verifiable compliance record
+              └──────────────────┘
+                       │
+                       ▼
+              ┌─────────────────────┐
+              │ ReverseRAGVerifier  │ ──► Zero Residual Leakage Score
+              └─────────────────────┘
+\
+---
 
-### 1. Global Dry Run (Simulation Mode)
+## Quickstart
 
-```python
-from qdrant_client import QdrantClient
-from vector_unforget import VectorUnforgetEngine, QdrantAdapter
+### 1. Installation
 
-client = QdrantClient("http://localhost:6333")
-adapter = QdrantAdapter(client=client, collection_name="production_rag")
-engine = VectorUnforgetEngine(adapter=adapter, db_name="qdrant_prod")
+\\ash
+git clone https://github.com/Toskurim/vector-unforget.git
+cd vector-unforget
+pip install -r requirements.txt
+\
+### 2. Multi-Hop Cascading Erasure
 
-# Run simulation detecting US SSN, IPv4, Emails, and phones globally
-preview = engine.purge_user("John Smith", dry_run=True)
-print("Vectors to be purged:", preview["vector_ids_to_be_purged"])
-print("Secondary PII extracted:", preview["secondary_pii_extracted"])
-```
+\\python
+from vector_unforget.graph_resolver import PIIEntityGraph
 
-### 2. Pgvector (PostgreSQL) Integration
+graph = PIIEntityGraph(decay_factor=0.8)
 
-```python
-from vector_unforget import VectorUnforgetEngine, PgvectorAdapter
+# Ingest entity relationships from document chunks
+graph.link_chunk("chunk_1", {"Mario Rossi", "mario.rossi@company.com"})
+graph.link_chunk("chunk_2", {"mario.rossi@company.com", "192.168.1.50"})
+graph.link_chunk("chunk_3", {"192.168.1.50", "IT60X0542811101000000123456"})
 
-adapter = PgvectorAdapter(
-    connection_string="postgresql://user:password@localhost:5432/rag_db",
-    table_name="embeddings",
-    id_column="id",
-    text_column="content"
+# Cascade from primary identifier
+resolved = graph.resolve_cascading_entities("Mario Rossi", max_depth=3, min_confidence=0.5)
+affected_chunks = graph.get_affected_chunks(resolved)
+
+print("Entities to purge:", resolved)
+print("Affected chunks:", affected_chunks)
+\
+### 3. Pinecone / Weaviate Adapter Usage
+
+\\python
+from vector_unforget.adapters import PineconeAdapter
+# from vector_unforget.adapters import WeaviateAdapter
+
+adapter = PineconeAdapter(index=pinecone_index, namespace="production")
+
+# Dry run simulation
+dry_run_report = adapter.delete_records(target_ids=["vec-101", "vec-102"], dry_run=True)
+print("Simulation result:", dry_run_report)
+
+# Permanent hard deletion
+purge_report = adapter.delete_records(target_ids=["vec-101", "vec-102"], dry_run=False)
+\
+### 4. Reverse RAG Adversarial Verification
+
+\\python
+from vector_unforget.verifier import ReverseRAGVerifier
+
+verifier = ReverseRAGVerifier(adapter)
+report = verifier.verify_erasure(
+    target_name="Mario Rossi",
+    extracted_pii={"mario.rossi@company.com", "192.168.1.50"},
 )
 
-engine = VectorUnforgetEngine(adapter=adapter, db_name="pgvector_prod")
+print(f"Compliance status: {report['is_fully_compliant']}")
+print(f"Zero Leakage Score: {report['zero_residual_leakage_score']}%")
+\
+### 5. Semantic Subspace Projection (Vector Unlearning)
 
-# Execute real cascading purge
-audit_log = engine.purge_user("John Smith", dry_run=False)
-```
+\\python
+from vector_unforget.subspace_projection import SubspaceProjector
 
-## 📄 License
+projector = SubspaceProjector()
 
-This project is licensed under the GNU Affero General Public License v3.0 (AGPLv3) - see the [LICENSE](LICENSE) file for details. Commercial licensing options are available for enterprise integration.
+# Nullify sensitive concept direction from target embeddings
+unlearned_vector = projector.project_orthogonal(
+    target_vector=[0.8, 0.6, 0.0],
+    concept_vector=[1.0, 0.0, 0.0],
+)
+\
+---
+
+## Running Tests
+
+Run the full automated test suite:
+
+\\ash
+python -m pytest
+\
+---
+
+## License
+
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPLv3)**. See the \LICENSE\ file for details.
+
+- **Author:** Toskurim
+- **Contact:** toskurim@gmail.com
