@@ -6,6 +6,7 @@ License: AGPLv3
 
 from .engine import VectorUnforgetEngine
 from .verifier import ReverseRAGVerifier
+from .graph_resolver import PIIEntityGraph
 
 try:
     from .auditor import Auditor
@@ -18,5 +19,6 @@ except ImportError:
 __all__ = [
     "VectorUnforgetEngine",
     "ReverseRAGVerifier",
+    "PIIEntityGraph",
     "Auditor",
 ]
