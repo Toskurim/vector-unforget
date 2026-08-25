@@ -1,6 +1,22 @@
-from vector_unforget.engine import VectorUnforgetEngine
-from vector_unforget.adapters.chroma import ChromaAdapter
-from vector_unforget.adapters.qdrant import QdrantAdapter
-from vector_unforget.adapters.pgvector import PgvectorAdapter
+"""
+VectorUnforget: GDPR/CCPA Right-to-be-Forgotten Engine for Vector Databases.
+Author: Toskurim
+License: AGPLv3
+"""
 
-__all__ = ["VectorUnforgetEngine", "ChromaAdapter", "QdrantAdapter", "PgvectorAdapter"]
+from .engine import VectorUnforgetEngine
+from .verifier import ReverseRAGVerifier
+
+try:
+    from .auditor import Auditor
+except ImportError:
+    try:
+        from .auditor import AuditLogger as Auditor
+    except ImportError:
+        Auditor = None
+
+__all__ = [
+    "VectorUnforgetEngine",
+    "ReverseRAGVerifier",
+    "Auditor",
+]
