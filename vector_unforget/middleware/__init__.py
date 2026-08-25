@@ -1,21 +1,10 @@
 """
-Database Adapters for VectorUnforget.
+Middleware integration layer for VectorUnforget.
+Supports LangChain, LlamaIndex, and custom RAG pipelines.
 Author: Toskurim
-License: AGPLv3
 """
 
-from .base import BaseVectorAdapter
-from .chroma import ChromaAdapter
-from .pgvector import PgvectorAdapter
-from .qdrant import QdrantAdapter
-from .pinecone import PineconeAdapter
-from .weaviate import WeaviateAdapter
+from .langchain_retriever import VectorUnforgetRetriever
+from .llamaindex_processor import VectorUnforgetNodePostprocessor
 
-__all__ = [
-    "BaseVectorAdapter",
-    "ChromaAdapter",
-    "PgvectorAdapter",
-    "QdrantAdapter",
-    "PineconeAdapter",
-    "WeaviateAdapter",
-]
+__all__ = ["VectorUnforgetRetriever", "VectorUnforgetNodePostprocessor"]
