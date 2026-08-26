@@ -1,89 +1,200 @@
 """
-Subspace Projection Engine for Vector Unlearning.
-Author: Toskurim
-License: AGPLv3
+Subspace Projection Engine for VectorUnforget.
+Provides orthogonal subspace projection for vector unlearning with CPU (NumPy) and GPU (PyTorch/CUDA) support.
 """
 
-import math
-from typing import List, Union
+from typing import Optional, Union, Tuple
+import numpy as np
 
+# Optional PyTorch detection for GPU acceleration
 try:
-    import numpy as np
-    HAS_NUMPY = True
+    import torch
+    TORCH_AVAILABLE = True
 except ImportError:
-    HAS_NUMPY = False
+    TORCH_AVAILABLE = False
 
 
 class SubspaceProjector:
     """
-    Applies orthogonal subspace projections to eliminate concept directions
-    from vector embeddings without index retraining.
+    High-throughput engine to project vector embeddings onto orthogonal complements
+    of sensitive concept subspaces, preventing semantic leakage.
     """
 
-    @staticmethod
-    def _dot(v1: List[float], v2: List[float]) -> float:
-        return sum(a * b for a, b in zip(v1, v2))
+    def __init__(self, device: str = "auto"):
+        self.device = self._resolve_device(device)
 
-    @staticmethod
-    def _norm(v: List[float]) -> float:
-        return math.sqrt(sum(a * a for a in v))
+    def _resolve_device(self, device: str) -> str:
+        if device == "cuda":
+            if not TORCH_AVAILABLE or not torch.cuda.is_available():
+                raise RuntimeError("CUDA execution requested but PyTorch or CUDA GPU is not available.")
+            return "cuda"
+        elif device == "auto":
+            if TORCH_AVAILABLE and torch.cuda.is_available():
+                return "cuda"
+            return "cpu"
+        return "cpu"
+
+    def compute_concept_subspace(
+        self,
+        concept_embeddings: np.ndarray,
+        rank: int = 1,
+        energy_threshold: Optional[float] = None
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Extract the dominant orthonormal basis vectors spanning a concept subspace via SVD.
+        
+        Args:
+            concept_embeddings: (M, D) array of embedding variations of the same concept.
+            rank: Target subspace dimension (k).
+            energy_threshold: Optional variance threshold (0.0 to 1.0) to dynamically select k.
+            
+        Returns:
+            basis: (k, D) orthonormal basis matrix.
+            singular_values: singular values representing energy per dimension.
+        """
+        X = np.asarray(concept_embeddings, dtype=np.float32)
+        if X.ndim == 1:
+            X = X.reshape(1, -1)
+
+        X_centered = X - np.mean(X, axis=0, keepdims=True)
+        _, S, Vt = np.linalg.svd(X_centered, full_matrices=False)
+
+        if energy_threshold is not None:
+            total_energy = np.sum(S ** 2)
+            if total_energy > 0:
+                cumulative_energy = np.cumsum(S ** 2) / total_energy
+                rank = int(np.searchsorted(cumulative_energy, energy_threshold) + 1)
+                rank = max(1, min(rank, Vt.shape[0]))
+
+        k = max(1, min(rank, Vt.shape[0]))
+        basis = Vt[:k, :]
+        return basis, S[:k]
+
+    def project_matrix_multisubspace(
+        self,
+        embeddings: np.ndarray,
+        subspace_basis: np.ndarray,
+        normalize: bool = True,
+        eps: float = 1e-12
+    ) -> np.ndarray:
+        """
+        Project an embedding matrix (N, D) onto the orthogonal complement of a k-dimensional subspace (k, D).
+        Formula: X_unlearned = X - X @ Basis.T @ Basis
+        """
+        X = np.asarray(embeddings, dtype=np.float32)
+        B = np.asarray(subspace_basis, dtype=np.float32)
+
+        if B.ndim == 1:
+            B = B.reshape(1, -1)
+
+        projection = np.dot(np.dot(X, B.T), B)
+        X_unlearned = X - projection
+
+        if normalize:
+            norms = np.linalg.norm(X_unlearned, axis=1, keepdims=True)
+            norms = np.maximum(norms, eps)
+            X_unlearned = X_unlearned / norms
+
+        return X_unlearned
 
     def project_orthogonal(
         self,
-        target_vector: List[float],
-        concept_vector: List[float],
+        vector: np.ndarray,
+        concept_vector: np.ndarray,
         normalize: bool = True,
-    ) -> List[float]:
-        """
-        Projects target_vector onto the orthogonal complement of concept_vector.
-        Formula: v_unlearned = v - ((v . u) / (u . u)) * u
-        """
-        dot_product = self._dot(target_vector, concept_vector)
-        concept_sq_norm = self._dot(concept_vector, concept_vector)
+        eps: float = 1e-12
+    ) -> np.ndarray:
+        v = np.asarray(vector, dtype=np.float32)
+        c = np.asarray(concept_vector, dtype=np.float32)
 
-        if concept_sq_norm == 0.0:
-            return list(target_vector)
+        dot_cc = float(np.dot(c, c))
+        if dot_cc < eps:
+            return v
 
-        scalar = dot_product / concept_sq_norm
-        projected = [t - scalar * c for t, c in zip(target_vector, concept_vector)]
+        c_norm_sq = dot_cc
+        projection = (np.dot(v, c) / c_norm_sq) * c
+        v_unlearned = v - projection
 
         if normalize:
-            norm_val = self._norm(projected)
-            if norm_val > 0.0:
-                projected = [p / norm_val for p in projected]
+            norm = np.linalg.norm(v_unlearned)
+            if norm > eps:
+                v_unlearned = v_unlearned / norm
 
-        return projected
+        return v_unlearned
 
     def project_matrix_orthogonal(
         self,
-        embeddings: Union[List[List[float]], "np.ndarray"],
-        concept_vector: Union[List[float], "np.ndarray"],
+        embeddings: Union[np.ndarray, "torch.Tensor"],
+        concept_vector: Union[np.ndarray, "torch.Tensor"],
         normalize: bool = True,
-    ) -> Union[List[List[float]], "np.ndarray"]:
-        """
-        High-throughput batch projection for large-scale embedding matrices.
-        """
-        if HAS_NUMPY:
-            mat = np.asarray(embeddings, dtype=np.float32)
-            u = np.asarray(concept_vector, dtype=np.float32)
+        eps: float = 1e-12,
+        backend: Optional[str] = None
+    ) -> Union[np.ndarray, "torch.Tensor"]:
+        target_backend = backend or ("torch_cuda" if self.device == "cuda" else "numpy")
 
-            u_norm_sq = np.dot(u, u)
-            if u_norm_sq == 0.0:
-                return mat
-
-            # Compute projections: P = X - (X @ u / u^T u)[:, None] * u
-            projections = (np.matmul(mat, u) / u_norm_sq)[:, np.newaxis] * u
-            unlearned = mat - projections
-
-            if normalize:
-                norms = np.linalg.norm(unlearned, axis=1, keepdims=True)
-                norms[norms == 0.0] = 1.0
-                unlearned = unlearned / norms
-
-            return unlearned
+        if "torch" in target_backend:
+            if not TORCH_AVAILABLE:
+                raise ImportError("PyTorch is required for torch backend execution.")
+            return self._project_torch(embeddings, concept_vector, normalize, eps, use_cuda=("cuda" in target_backend))
         else:
-            # Fallback a liste native
-            return [
-                self.project_orthogonal(v, list(concept_vector), normalize=normalize)
-                for v in embeddings
-            ]
+            return self._project_numpy(embeddings, concept_vector, normalize, eps)
+
+    def _project_numpy(
+        self,
+        embeddings: np.ndarray,
+        concept_vector: np.ndarray,
+        normalize: bool,
+        eps: float
+    ) -> np.ndarray:
+        X = np.asarray(embeddings, dtype=np.float32)
+        c = np.asarray(concept_vector, dtype=np.float32)
+
+        dot_cc = float(np.dot(c, c))
+        if dot_cc < eps:
+            return X
+
+        scales = (np.dot(X, c) / dot_cc)[:, np.newaxis]
+        X_proj = scales * c
+        X_unlearned = X - X_proj
+
+        if normalize:
+            norms = np.linalg.norm(X_unlearned, axis=1, keepdims=True)
+            norms = np.maximum(norms, eps)
+            X_unlearned = X_unlearned / norms
+
+        return X_unlearned
+
+    def _project_torch(
+        self,
+        embeddings: Union[np.ndarray, "torch.Tensor"],
+        concept_vector: Union[np.ndarray, "torch.Tensor"],
+        normalize: bool,
+        eps: float,
+        use_cuda: bool
+    ) -> np.ndarray:
+        device = "cuda" if (use_cuda and torch.cuda.is_available()) else "cpu"
+
+        if isinstance(embeddings, np.ndarray):
+            t_X = torch.from_numpy(embeddings).float().to(device)
+        else:
+            t_X = embeddings.float().to(device)
+
+        if isinstance(concept_vector, np.ndarray):
+            t_c = torch.from_numpy(concept_vector).float().to(device)
+        else:
+            t_c = concept_vector.float().to(device)
+
+        dot_cc = torch.dot(t_c, t_c).item()
+        if dot_cc < eps:
+            return t_X.cpu().numpy() if isinstance(embeddings, np.ndarray) else t_X
+
+        scales = (torch.matmul(t_X, t_c) / dot_cc).unsqueeze(1)
+        t_unlearned = t_X - (scales * t_c)
+
+        if normalize:
+            norms = torch.norm(t_unlearned, dim=1, keepdim=True).clamp(min=eps)
+            t_unlearned = t_unlearned / norms
+
+        if isinstance(embeddings, np.ndarray):
+            return t_unlearned.cpu().numpy()
+        return t_unlearned
