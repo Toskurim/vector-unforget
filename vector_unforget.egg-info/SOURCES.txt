@@ -12,6 +12,7 @@ vector_unforget.egg-info/SOURCES.txt
 vector_unforget.egg-info/dependency_links.txt
 vector_unforget.egg-info/requires.txt
 vector_unforget.egg-info/top_level.txt
+vector_unforget/adapters/__init__.py
 vector_unforget/adapters/base.py
 vector_unforget/adapters/chroma.py
 vector_unforget/adapters/lancedb_adapter.py

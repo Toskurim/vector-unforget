@@ -1,33 +1,57 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "vector-unforget"
-version = "2.2.0"
+version = "3.1.0"
 authors = [
-  { name="Toskurim", email="toskurim@gmail.com" },
+  { name = "Toskurim", email = "toskurim@gmail.com" }
 ]
-description = "GDPR Right-to-be-Forgotten Engine for Vector Databases with Cascading Erasure & SHA-256 Audit Trails."
+description = "GDPR/CCPA compliant cascading PII erasure and subspace vector unlearning framework for vector databases."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
+license = { text = "AGPL-3.0-or-later" }
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: GNU Affero General Public License v3 (AGPLv3)",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Operating System :: OS Independent",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Database",
     "Topic :: Security :: Cryptography",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence"
 ]
 dependencies = [
-    "spacy>=3.0.0",
+    "numpy>=1.24.0",
+    "spacy>=3.5.0",
+    "pydantic>=2.0.0"
 ]
 
 [project.optional-dependencies]
-chroma = ["chromadb"]
-qdrant = ["qdrant-client"]
-pgvector = ["psycopg[binary]"]
-all = ["chromadb", "qdrant-client", "psycopg[binary]"]
+all = [
+    "chromadb>=0.4.0",
+    "qdrant-client>=1.6.0",
+    "pinecone-client>=3.0.0",
+    "weaviate-client>=4.0.0",
+    "lancedb>=0.4.0",
+    "psycopg2-binary>=2.9.0",
+    "langchain-core>=0.1.0",
+    "llama-index-core>=0.10.0"
+]
+test = [
+    "pytest>=8.0.0"
+]
 
 [project.urls]
 "Homepage" = "https://github.com/Toskurim/vector-unforget"
 "Bug Tracker" = "https://github.com/Toskurim/vector-unforget/issues"
+"Source" = "https://github.com/Toskurim/vector-unforget"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["vector_unforget*"]
