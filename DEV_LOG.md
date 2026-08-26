@@ -1,26 +1,45 @@
-# DEV_LOG: VectorUnforget
+# VectorUnforget - Development Roadmap
 
-## Metadati Autore & Privacy
-- **Author:** Toskurim
-- **Email:** toskurim@gmail.com
-- **License:** AGPLv3
-- **Repository:** https://github.com/Toskurim/vector-unforget
+## Completed Milestones (v1.0.0 - v3.1.0)
+- [x] **Core Engine**: Cascading PII detection via Regex & spaCy NER.
+- [x] **Graph Resolver**: Transient multi-hop entity graph with decay weighting.
+- [x] **Subspace Projector**: NumPy-based batch matrix orthogonal subspace projection.
+- [x] **Vector DB Adapters**: Pinecone, Weaviate, LanceDB, Qdrant, Pgvector, ChromaDB.
+- [x] **RAG Middleware**: Drop-in adapters for LangChain & LlamaIndex.
+- [x] **Adversarial Verification**: Reverse RAG probe with Zero Residual Leakage scoring.
+- [x] **Industrial Architecture**: PEP 517/621 packaging, GitHub Actions matrix CI/CD, dedicated `/tests` suite.
 
-## Stato Attuale del Progetto (v3.1.0 Enterprise Industrial)
-- **CI/CD Pipeline:** Attiva su GitHub Actions (Python 3.10, 3.11, 3.12).
-- **Subspace Unlearning:** Accelerazione matriciale NumPy attiva (`project_matrix_orthogonal`).
-- **Adapters Enterprise:** Pinecone, Weaviate, LanceDB, Qdrant, Pgvector, ChromaDB.
-- **Middleware:** LangChain Retriever e LlamaIndex NodePostprocessor.
-- **Adversarial Verification:** ReverseRAGVerifier con calcolo Zero Residual Leakage Score.
-- **Packaging:** Conforme standard PEP 517/621 (`pyproject.toml`), build e validazione `twine` superate.
-- **Test Suite:** 100% pass rate su pytest (15/15 test superati).
+---
 
-## Roadmap di Potenziamento Completata
-- [x] **Fase 6: CI/CD Pipeline con GitHub Actions**
-- [x] **Fase 7: NumPy Vectorized Subspace Engine**
-- [x] **Fase 8: Nuovo Adapter Enterprise (LanceDB)**
-- [x] **Fase 9: Packaging & Configurazione Distribuzione PyPI**
+## Phase 10: v3.2.0 - Performance & Advanced Linear Algebra
+- [ ] **10.1 GPU / CUDA Subspace Acceleration**
+  - Implement optional backend execution via PyTorch / CuPy.
+  - Zero-copy tensor projection for batch sizes > 100k vectors on VRAM.
+  - Automated fallback to NumPy backend when CUDA devices are absent.
+- [ ] **10.2 Multidimensional Concept Discovery (SVD / PCA)**
+  - Automated subspace discovery using Singular Value Decomposition on semantic clusters.
+  - Multi-rank concept erasure ($k$-dimensional hyperplane projection) for alias variations.
+  - Orthogonality preservation and variance retention metrics calculation.
 
-## Prossimi Passi Opzionali
-- Rilascio di un tag Git `v3.1.0` su GitHub.
-- Pubblicazione su PyPI tramite token API.
+---
+
+## Phase 11: v3.3.0 - Hybrid Search Erasure & New Ecosystem Adapters
+- [ ] **11.1 Milvus Vector Database Adapter**
+  - Distributed collection partition and entity purge implementation.
+  - Batch scalar/vector deletion with consistency level configuration.
+- [ ] **11.2 Elasticsearch & OpenSearch (k-NN) Adapter**
+  - Dense vector field projection and doc-level deletion hooks.
+- [ ] **11.3 Hybrid Index Synchronization**
+  - Dual-phase unlearning: dense embedding subspace projection + sparse BM25 token scrubbing.
+  - Prevention of keyword-based lexical leakage on unlearned semantic concepts.
+
+---
+
+## Phase 12: v3.4.0 - Enterprise Microservice Architecture
+- [ ] **12.1 FastAPI High-Throughput REST Gateway**
+  - Asynchronous endpoints: `POST /v1/unlearn/batch`, `POST /v1/graph/resolve`, `POST /v1/audit/verify`.
+  - Pydantic v2 validation and structured JSON schema error handling.
+- [ ] **12.2 Production Containerization & Deployment**
+  - Multi-stage Docker build with CPU and GPU runtime profiles.
+  - Helm chart / Kubernetes manifests for auto-scaling worker nodes.
+  - Prometheus metrics instrumentation for latency and throughput monitoring.
