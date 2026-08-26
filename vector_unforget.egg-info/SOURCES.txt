@@ -4,6 +4,9 @@ pyproject.toml
 vector_unforget/__init__.py
 vector_unforget/auditor.py
 vector_unforget/engine.py
+vector_unforget/graph_resolver.py
+vector_unforget/subspace_projection.py
+vector_unforget/verifier.py
 vector_unforget.egg-info/PKG-INFO
 vector_unforget.egg-info/SOURCES.txt
 vector_unforget.egg-info/dependency_links.txt
@@ -11,5 +14,11 @@ vector_unforget.egg-info/requires.txt
 vector_unforget.egg-info/top_level.txt
 vector_unforget/adapters/base.py
 vector_unforget/adapters/chroma.py
+vector_unforget/adapters/lancedb_adapter.py
 vector_unforget/adapters/pgvector.py
+vector_unforget/adapters/pinecone.py
 vector_unforget/adapters/qdrant.py
+vector_unforget/adapters/weaviate.py
+vector_unforget/middleware/__init__.py
+vector_unforget/middleware/langchain_retriever.py
+vector_unforget/middleware/llamaindex_processor.py
