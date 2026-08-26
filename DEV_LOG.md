@@ -1,45 +1,26 @@
-# VectorUnforget - Development Roadmap
+# VectorUnforget Development Log
 
-## Completed Milestones (v1.0.0 - v3.1.0)
-- [x] **Core Engine**: Cascading PII detection via Regex & spaCy NER.
-- [x] **Graph Resolver**: Transient multi-hop entity graph with decay weighting.
-- [x] **Subspace Projector**: NumPy-based batch matrix orthogonal subspace projection.
-- [x] **Vector DB Adapters**: Pinecone, Weaviate, LanceDB, Qdrant, Pgvector, ChromaDB.
-- [x] **RAG Middleware**: Drop-in adapters for LangChain & LlamaIndex.
-- [x] **Adversarial Verification**: Reverse RAG probe with Zero Residual Leakage scoring.
-- [x] **Industrial Architecture**: PEP 517/621 packaging, GitHub Actions matrix CI/CD, dedicated `/tests` suite.
+## Version History
 
----
+### [v3.3.0] - 2026-08-26
+- **Milvus Adapter**: Native distributed entity deletion via primary key and scalar expressions.
+- **Elasticsearch & OpenSearch Adapter**: Full support for index-level document scrubbing and k-NN dense vector erasure.
+- **Hybrid Search Erasure**: Introduced `HybridSearchScrubber` for dual-phase dense embedding orthogonal projection and sparse BM25 lexical token sanitization.
+- **Test Suite**: 23/23 tests passing across core linear algebra, adapters, and middleware.
 
-## Phase 10: v3.2.0 - Performance & Advanced Linear Algebra
-- [ ] **10.1 GPU / CUDA Subspace Acceleration**
-  - Implement optional backend execution via PyTorch / CuPy.
-  - Zero-copy tensor projection for batch sizes > 100k vectors on VRAM.
-  - Automated fallback to NumPy backend when CUDA devices are absent.
-- [ ] **10.2 Multidimensional Concept Discovery (SVD / PCA)**
-  - Automated subspace discovery using Singular Value Decomposition on semantic clusters.
-  - Multi-rank concept erasure ($k$-dimensional hyperplane projection) for alias variations.
-  - Orthogonality preservation and variance retention metrics calculation.
+### [v3.2.0] - 2026-08-26
+- **GPU Acceleration**: Integrated PyTorch/CUDA execution into `SubspaceProjector` with transparent fallback to NumPy.
+- **Multidimensional Concept Discovery**: Implemented Singular Value Decomposition (SVD) for extracting rank-$k$ orthonormal bases from semantic concept clusters.
+- **Matrix Hyperplane Projection**: Added `project_matrix_multisubspace` for batch orthogonalization against multidimensional concept directions.
 
 ---
 
-## Phase 11: v3.3.0 - Hybrid Search Erasure & New Ecosystem Adapters
-- [ ] **11.1 Milvus Vector Database Adapter**
-  - Distributed collection partition and entity purge implementation.
-  - Batch scalar/vector deletion with consistency level configuration.
-- [ ] **11.2 Elasticsearch & OpenSearch (k-NN) Adapter**
-  - Dense vector field projection and doc-level deletion hooks.
-- [ ] **11.3 Hybrid Index Synchronization**
-  - Dual-phase unlearning: dense embedding subspace projection + sparse BM25 token scrubbing.
-  - Prevention of keyword-based lexical leakage on unlearned semantic concepts.
+## Active Roadmap
 
----
-
-## Phase 12: v3.4.0 - Enterprise Microservice Architecture
+### Phase 12: v3.4.0 - Enterprise Microservice Architecture
 - [ ] **12.1 FastAPI High-Throughput REST Gateway**
-  - Asynchronous endpoints: `POST /v1/unlearn/batch`, `POST /v1/graph/resolve`, `POST /v1/audit/verify`.
-  - Pydantic v2 validation and structured JSON schema error handling.
+  - Asynchronous endpoints: `/v1/unlearn/batch`, `/v1/graph/resolve`, `/v1/audit/verify`.
+  - Pydantic v2 schemas and validation models.
 - [ ] **12.2 Production Containerization & Deployment**
-  - Multi-stage Docker build with CPU and GPU runtime profiles.
-  - Helm chart / Kubernetes manifests for auto-scaling worker nodes.
-  - Prometheus metrics instrumentation for latency and throughput monitoring.
+  - Multi-stage Docker build (CPU & CUDA profiles).
+  - Helm charts and Prometheus metrics instrumentation.
