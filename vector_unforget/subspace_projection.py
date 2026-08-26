@@ -1,84 +1,89 @@
 """
-Semantic Subspace Projection (Vector Unlearning Engine) for VectorUnforget.
+Subspace Projection Engine for Vector Unlearning.
 Author: Toskurim
 License: AGPLv3
 """
 
-from typing import List, Union
 import math
+from typing import List, Union
+
+try:
+    import numpy as np
+    HAS_NUMPY = True
+except ImportError:
+    HAS_NUMPY = False
 
 
 class SubspaceProjector:
     """
-    Implements mathematical subspace nullification and orthogonal projection
-    for deep semantic vector unlearning without index retraining.
+    Applies orthogonal subspace projections to eliminate concept directions
+    from vector embeddings without index retraining.
     """
 
     @staticmethod
-    def dot_product(v1: List[float], v2: List[float]) -> float:
-        """Computes the dot product of two vectors."""
+    def _dot(v1: List[float], v2: List[float]) -> float:
         return sum(a * b for a, b in zip(v1, v2))
 
     @staticmethod
-    def norm(v: List[float]) -> float:
-        """Computes the Euclidean norm (L2) of a vector."""
+    def _norm(v: List[float]) -> float:
         return math.sqrt(sum(a * a for a in v))
-
-    @staticmethod
-    def normalize(v: List[float]) -> List[float]:
-        """Normalizes a vector to unit length."""
-        n = SubspaceProjector.norm(v)
-        if n == 0.0:
-            return v
-        return [a / n for a in v]
-
-    @staticmethod
-    def compute_centroid(vectors: List[List[float]]) -> List[float]:
-        """Calculates the geometric centroid (average vector) of a set of embeddings."""
-        if not vectors:
-            return []
-        dim = len(vectors[0])
-        centroid = [0.0] * dim
-        for vec in vectors:
-            for i in range(dim):
-                centroid[i] += vec[i]
-        n = len(vectors)
-        return SubspaceProjector.normalize([c / n for c in centroid])
 
     def project_orthogonal(
         self,
         target_vector: List[float],
         concept_vector: List[float],
+        normalize: bool = True,
     ) -> List[float]:
         """
-        Projects `target_vector` onto the subspace orthogonal to `concept_vector`.
-        Removes all directional components aligned with the forgotten concept:
-        v_unlearned = v - (v . u) * u
+        Projects target_vector onto the orthogonal complement of concept_vector.
+        Formula: v_unlearned = v - ((v . u) / (u . u)) * u
         """
-        concept_unit = self.normalize(concept_vector)
-        dot = self.dot_product(target_vector, concept_unit)
+        dot_product = self._dot(target_vector, concept_vector)
+        concept_sq_norm = self._dot(concept_vector, concept_vector)
 
-        # Subtract projection along concept direction
-        unlearned = [
-            round(t - dot * c, 6)
-            for t, c in zip(target_vector, concept_unit)
-        ]
-        return self.normalize(unlearned)
+        if concept_sq_norm == 0.0:
+            return list(target_vector)
 
-    def batch_unlearn_vectors(
+        scalar = dot_product / concept_sq_norm
+        projected = [t - scalar * c for t, c in zip(target_vector, concept_vector)]
+
+        if normalize:
+            norm_val = self._norm(projected)
+            if norm_val > 0.0:
+                projected = [p / norm_val for p in projected]
+
+        return projected
+
+    def project_matrix_orthogonal(
         self,
-        vectors: List[List[float]],
-        concept_basis: Union[List[float], List[List[float]]],
-    ) -> List[List[float]]:
+        embeddings: Union[List[List[float]], "np.ndarray"],
+        concept_vector: Union[List[float], "np.ndarray"],
+        normalize: bool = True,
+    ) -> Union[List[List[float]], "np.ndarray"]:
         """
-        Applies orthogonal projection across a collection of vectors.
+        High-throughput batch projection for large-scale embedding matrices.
         """
-        if isinstance(concept_basis[0], list):
-            concept_vector = self.compute_centroid(concept_basis)
-        else:
-            concept_vector = concept_basis
+        if HAS_NUMPY:
+            mat = np.asarray(embeddings, dtype=np.float32)
+            u = np.asarray(concept_vector, dtype=np.float32)
 
-        return [
-            self.project_orthogonal(v, concept_vector)
-            for v in vectors
-        ]
+            u_norm_sq = np.dot(u, u)
+            if u_norm_sq == 0.0:
+                return mat
+
+            # Compute projections: P = X - (X @ u / u^T u)[:, None] * u
+            projections = (np.matmul(mat, u) / u_norm_sq)[:, np.newaxis] * u
+            unlearned = mat - projections
+
+            if normalize:
+                norms = np.linalg.norm(unlearned, axis=1, keepdims=True)
+                norms[norms == 0.0] = 1.0
+                unlearned = unlearned / norms
+
+            return unlearned
+        else:
+            # Fallback a liste native
+            return [
+                self.project_orthogonal(v, list(concept_vector), normalize=normalize)
+                for v in embeddings
+            ]
