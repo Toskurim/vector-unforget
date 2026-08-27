@@ -1,9 +1,9 @@
 ﻿# VectorUnforget
 
-[![Version](https://img.shields.io/badge/version-3.7.0-blue.svg)](https://github.com/Toskurim/vector-unforget)
+[![Version](https://img.shields.io/badge/version-3.9.0-blue.svg)](https://github.com/Toskurim/vector-unforget)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-blue)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-31%2F31%20passing-brightgreen.svg)](https://github.com/Toskurim/vector-unforget)
+[![Tests](https://img.shields.io/badge/tests-33%2F33%20passing-brightgreen.svg)](https://github.com/Toskurim/vector-unforget)
 [![Observability](https://img.shields.io/badge/observability-Prometheus%20ready-orange.svg)](https://prometheus.io/)
 
 **VectorUnforget** is an enterprise-grade AI middleware engine designed for verifiable PII erasure, concept unlearning, and GDPR (Art. 17) / CCPA compliance across vector databases and RAG pipelines.
