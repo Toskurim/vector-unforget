@@ -10,6 +10,7 @@ except ImportError:
 
 import json
 from vector_unforget.engine import VectorUnforgetEngine
+from vector_unforget.graph_resolver import PIIEntityGraph
 from vector_unforget.compliance import ComplianceCertificateGenerator
 
 
@@ -33,7 +34,10 @@ def run_dashboard():
 
     tabs = st.tabs(["PII Entity Remediation", "Cryptographic Audit Trail", "Engine Observability"])
 
-    engine = VectorUnforgetEngine(decay_factor=confidence_decay)
+    engine = VectorUnforgetEngine()
+    if hasattr(engine, "graph") and hasattr(engine.graph, "decay_factor"):
+        engine.graph.decay_factor = confidence_decay
+
     cert_gen = ComplianceCertificateGenerator()
 
     with tabs[0]:
