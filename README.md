@@ -10,7 +10,7 @@
 
 ---
 
-### What It Does in Plain English
+### Operational Overview & Value Proposition
 
 When a user requests their data be forgotten under GDPR/CCPA, traditional vector databases force you to delete records and re-index millions of embeddings from scratch—a process taking minutes or hours and burning substantial compute.
 
