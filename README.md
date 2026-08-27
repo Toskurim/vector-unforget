@@ -113,6 +113,10 @@ All values are **physically measured wall-clock times** across dense 768-dimensi
 
 > 📊 **Full Methodology & Reproduction**: See [BENCHMARKS.md](BENCHMARKS.md) for execution parameters, memory profiling, and test scripts (`benchmarks/benchmark_unlearning.py`).
 
-## License
+## License & Commercial Use
 
-Distributed under the **AGPLv3** License. See `LICENSE` for details.
+VectorUnforget is distributed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**. See [LICENSE](LICENSE) for details.
+
+* **Open-Source / Community**: Free to use, evaluate, and modify under AGPL-3.0 copyleft terms.
+* **Commercial / Enterprise Licensing**: For proprietary software embedding, closed-source SaaS integrations, or custom enterprise terms without AGPL-3.0 copyleft obligations, please open a GitHub Discussion or reach out directly via repository contact channels.
+
