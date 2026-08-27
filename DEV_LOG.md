@@ -24,3 +24,7 @@
 
 ### [v3.2.0] - 2026-08-26
 - **GPU Acceleration & SVD**: PyTorch CUDA integration and rank-$k$ concept subspace discovery.
+
+### [v4.1.0] - 2026-08-27
+- **Scalability & Performance Benchmarks**: Added comprehensive quantitative benchmark suite (enchmarks/benchmark_unlearning.py) evaluating orthogonal projection vs HNSW re-indexing up to 1M vectors @ 768d.
+- **Audit & Compliance**: Documented 70x-93x latency reduction and 100% concept leakage scrub with deterministic SHA-256 GDPR Art. 17 receipts in BENCHMARKS.md.
