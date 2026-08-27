@@ -1,23 +1,18 @@
-from abc import ABC, abstractmethod
+﻿from abc import ABC, abstractmethod
 from typing import List, Dict, Any
+import numpy as np
 
 class BaseVectorAdapter(ABC):
-    """
-    Interfaccia astratta per uniformare la gestione dei vari Vector DB.
-    """
-
     @abstractmethod
-    def fetch_all_documents(self) -> List[Dict[str, Any]]:
-        """
-        Recupera tutti i documenti con id, payload/metadati e testo originale.
-        Ritorna una lista di dizionari: [{'id': ..., 'text': ..., 'metadata': ...}]
-        """
+    def fetch_embeddings(self, limit: int = 1000) -> Dict[str, np.ndarray]:
         pass
 
     @abstractmethod
-    def delete_documents_by_ids(self, ids: List[str]) -> int:
-        """
-        Elimina i vettori corrispondenti alla lista di ID forniti.
-        Ritorna il numero di elementi eliminati.
-        """
+    def update_embeddings(self, embeddings_dict: Dict[str, np.ndarray]) -> bool:
         pass
+
+    @abstractmethod
+    def delete_by_ids(self, ids: List[str]) -> bool:
+        pass
+
+BaseVectorStoreAdapter = BaseVectorAdapter

@@ -1,24 +1,12 @@
-﻿"""
-ChromaDB Vector Database Adapter for VectorUnforget.
-"""
-
-from typing import List, Dict, Any, Optional
+﻿from typing import List, Dict, Any
 import numpy as np
-from vector_unforget.adapters.base import BaseVectorStoreAdapter
+from vector_unforget.adapters.base import BaseVectorAdapter
 
-
-class ChromaAdapter(BaseVectorStoreAdapter):
-    """
-    Adapter for ChromaDB open-source embedding database.
-    """
-
+class ChromaAdapter(BaseVectorAdapter):
     def __init__(self, collection: Any):
         self.collection = collection
 
     def fetch_embeddings(self, limit: int = 1000) -> Dict[str, np.ndarray]:
-        """
-        Fetch vectors with IDs from the Chroma collection.
-        """
         if hasattr(self.collection, "get"):
             data = self.collection.get(include=["embeddings"], limit=limit)
             ids = data.get("ids", [])
@@ -32,9 +20,6 @@ class ChromaAdapter(BaseVectorStoreAdapter):
         return {}
 
     def update_embeddings(self, embeddings_dict: Dict[str, np.ndarray]) -> bool:
-        """
-        Update vectors in-place in Chroma collection.
-        """
         if not embeddings_dict:
             return True
         if hasattr(self.collection, "update"):
@@ -45,9 +30,6 @@ class ChromaAdapter(BaseVectorStoreAdapter):
         return True
 
     def delete_by_ids(self, ids: List[str]) -> bool:
-        """
-        Delete records explicitly by ID list.
-        """
         if hasattr(self.collection, "delete"):
             self.collection.delete(ids=ids)
             return True
