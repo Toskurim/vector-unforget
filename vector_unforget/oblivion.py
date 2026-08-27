@@ -21,10 +21,10 @@ class OblivionExtractor:
     }
 
     ACTION_TRIGGERS = [
-        r"dimentica\s+(?:tutto\s+su\s+|le\s+informazioni\s+di\s+|i\s+dati\s+di\s+)?(.+)",
-        r"forget\s+(?:everything\s+about\s+|all\s+data\s+for\s+|records\s+of\s+)?(.+)",
-        r"erase\s+(?:pii\s+for\s+|identity\s+of\s+)?(.+)",
-        r"purge\s+(.+)"
+        r"dimentica\s+(?:tutto\s+su\s+|tutte\s+le\s+informazioni\s+di\s+|le\s+informazioni\s+di\s+|tutti\s+i\s+dati\s+di\s+|i\s+dati\s+di\s+|su\s+|di\s+)?(.+)",
+        r"forget\s+(?:everything\s+about\s+|all\s+information\s+about\s+|all\s+data\s+(?:for|of|about)\s+|records\s+of\s+|about\s+)?(.+)",
+        r"erase\s+(?:pii\s+for\s+|identity\s+of\s+|all\s+about\s+)?(.+)",
+        r"purge\s+(?:all\s+records\s+of\s+|records\s+of\s+)?(.+)"
     ]
 
     def __init__(self, custom_patterns: Optional[Dict[str, str]] = None):
