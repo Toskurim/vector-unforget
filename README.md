@@ -1,6 +1,7 @@
 ﻿# VectorUnforget
 
 [![version](https://img.shields.io/badge/version-4.1.0-blue.svg)](https://github.com/Toskurim/vector-unforget)
+[![PyPI](https://img.shields.io/pypi/v/vector-unforget.svg)](https://pypi.org/project/vector-unforget/)
 [![License](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-blue.svg)](pyproject.toml)
 [![tests](https://img.shields.io/badge/tests-36%2F36%20passing-brightgreen.svg)](tests/)
@@ -119,4 +120,5 @@ VectorUnforget is distributed under the **GNU Affero General Public License v3.0
 
 * **Open-Source / Community**: Free to use, evaluate, and modify under AGPL-3.0 copyleft terms.
 * **Commercial / Enterprise Licensing**: For proprietary software embedding, closed-source SaaS integrations, or custom enterprise terms without AGPL-3.0 copyleft obligations, please open a GitHub Discussion or reach out directly via repository contact channels.
+
 
