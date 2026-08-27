@@ -2,7 +2,7 @@
 Pydantic Schemas for VectorUnforget REST Gateway.
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 
 
@@ -42,3 +42,18 @@ class AuditVerifyResponse(BaseModel):
     leakage_score: float
     max_similarity: float
     passed: bool
+
+
+class CertificateRequest(BaseModel):
+    request_id: str = Field(..., description="Unique compliance audit ticket ID")
+    entity_identifier: str = Field(..., description="PII Entity identifier")
+    unlearned_vector_count: int = Field(..., ge=0)
+    pre_leakage_score: float = Field(..., ge=0.0)
+    post_leakage_score: float = Field(..., ge=0.0)
+    scrubbed_terms: Optional[List[str]] = Field(default_factory=list)
+    regulation: str = Field(default="GDPR_Art_17")
+
+
+class CertificateResponse(BaseModel):
+    status: str
+    certificate: Dict[str, Any]

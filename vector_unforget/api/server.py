@@ -9,6 +9,7 @@ from fastapi import FastAPI, HTTPException, status
 from vector_unforget import __version__
 from vector_unforget.subspace_projection import SubspaceProjector
 from vector_unforget.graph_resolver import PIIEntityGraph
+from vector_unforget.compliance import ComplianceCertificateGenerator
 from vector_unforget.api.models import (
     UnlearnBatchRequest,
     UnlearnBatchResponse,
@@ -16,6 +17,8 @@ from vector_unforget.api.models import (
     GraphResolveResponse,
     AuditVerifyRequest,
     AuditVerifyResponse,
+    CertificateRequest,
+    CertificateResponse,
 )
 
 
@@ -27,6 +30,7 @@ def create_app() -> FastAPI:
     )
 
     projector = SubspaceProjector(device="auto")
+    cert_gen = ComplianceCertificateGenerator()
 
     @app.get("/health", tags=["System"])
     async def health_check() -> Dict[str, Any]:
@@ -115,6 +119,22 @@ def create_app() -> FastAPI:
                 max_similarity=max_sim,
                 passed=passed
             )
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+    @app.post("/v1/audit/certificate", response_model=CertificateResponse, tags=["Compliance"])
+    async def generate_certificate_endpoint(payload: CertificateRequest) -> CertificateResponse:
+        try:
+            cert = cert_gen.generate_certificate(
+                request_id=payload.request_id,
+                entity_identifier=payload.entity_identifier,
+                unlearned_vector_count=payload.unlearned_vector_count,
+                pre_unlearning_leakage=payload.pre_leakage_score,
+                post_unlearning_leakage=payload.post_leakage_score,
+                scrubbed_terms=payload.scrubbed_terms,
+                regulation=payload.regulation,
+            )
+            return CertificateResponse(status="success", certificate=cert)
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
