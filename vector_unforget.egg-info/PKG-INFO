@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: vector-unforget
-Version: 3.4.0
+Version: 4.0.0
 Summary: GDPR/CCPA compliant cascading PII erasure and subspace vector unlearning framework for vector databases.
 Author-email: Toskurim <toskurim@gmail.com>
 License: AGPL-3.0-or-later
@@ -50,124 +50,91 @@ Requires-Dist: uvicorn[standard]>=0.28.0; extra == "all"
 Requires-Dist: httpx>=0.27.0; extra == "all"
 Dynamic: license-file
 
-# VectorUnforget
+﻿# VectorUnforget
 
-[![CI Matrix](https://github.com/Toskurim/vector-unforget/actions/workflows/ci.yml/badge.svg)](https://github.com/Toskurim/vector-unforget/actions)
+[![Version](https://img.shields.io/badge/version-4.0.0-blue.svg)](https://github.com/Toskurim/vector-unforget)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![Python Version](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-brightgreen)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-blue)](https://www.python.org/)
+[![Tests](https://img.shields.io/badge/tests-33%2F33%20passing-brightgreen.svg)](https://github.com/Toskurim/vector-unforget)
+[![Observability](https://img.shields.io/badge/observability-Prometheus%20ready-orange.svg)](https://prometheus.io/)
 
-**VectorUnforget** is an enterprise-grade vector unlearning and cascading PII erasure framework designed for compliance with **GDPR (Right to be Forgotten)** and **CCPA**. It eliminates direct identifiers, resolves multi-hop identity graphs, and projects vector embeddings onto orthogonal subspaces to prevent knowledge leakage in RAG pipelines without requiring index retraining.
-
----
-
-## Key Features
-
-- **Cascading PII Detection**: Hybrid entity detection combining high-performance regular expressions and spaCy Named Entity Recognition (NER).
-- **Transient PII Graph Resolver**: Maps multi-hop entity relationships with weighted confidence decay across conversational sessions.
-- **NumPy Accelerated Subspace Projection**: High-throughput batch matrix projections eliminating target concept directions directly from vector representations.
-- **Multi-Engine Vector Adapters**: Native support for **Pinecone**, **Weaviate**, **LanceDB**, **Qdrant**, **Pgvector (PostgreSQL)**, and **ChromaDB**.
-- **RAG Middleware**: Drop-in integrations for **LangChain** (`VectorUnforgetRetriever`) and **LlamaIndex** (`VectorUnforgetNodePostprocessor`).
-- **Adversarial Reverse RAG Verification**: Post-deletion penetration probing providing automated **Zero Residual Leakage Score** audits.
-- **Enterprise Packaging**: Fully PEP 517/621 compliant, tested across Python 3.10, 3.11, and 3.12 matrices.
+**VectorUnforget** is an enterprise-grade AI middleware engine designed for verifiable PII erasure, concept unlearning, and GDPR (Art. 17) / CCPA compliance across vector databases and RAG pipelines.
 
 ---
 
-## Architecture Overview
+## Core Capabilities
 
-```text
-[ Ingestion / Query ]
-        │
-        ▼
-[ PII Entity Graph Resolver ] ─── (Regex + spaCy NER Multi-hop)
-        │
-        ├──► [ Hard Erasure ] ──────► Vector DB Adapters (Pinecone, LanceDB, Qdrant, etc.)
-        │
-        ├──► [ Subspace Projector ] ─► High-Throughput Matrix Projection (NumPy)
-        │
-        ▼
-[ Reverse RAG Adversarial Verifier ] ──► Zero Residual Leakage Audit Log
-```
-
----
-
-## Installation
-
-### Basic Installation
-```bash
-pip install vector-unforget
-```
-
-### With Optional Adapter Dependencies
-```bash
-# Install with all vector databases and framework middleware
-pip install "vector-unforget[all]"
-
-# Install testing dependencies
-pip install "vector-unforget[test]"
-```
+- **Subspace Orthogonal Projection**: Deterministic concept unlearning using SVD and PyTorch CUDA/CPU acceleration without full index re-indexing.
+- **Cascading PII Entity Graph**: Multi-hop entity resolution with exponential confidence decay to erase connected identities.
+- **Hybrid Search Scrubbing**: Unified dense vector orthogonalization combined with sparse lexical BM25 token redaction.
+- **Production Vector DB Adapters**: Native drivers for **Milvus**, **Elasticsearch / OpenSearch**, **Pinecone**, **Weaviate**, and **LanceDB**.
+- **RAG Framework Integrations**: Native middleware for **LangChain** (`VectorUnforgetRetriever`) and **LlamaIndex** (`VectorUnforgetNodePostprocessor`).
+- **Cryptographic Audit Receipts**: Tamper-evident **SHA-256** erasure certificates verifying *Zero Residual Leakage* for Data Protection Officers.
+- **MLOps Telemetry**: Built-in Prometheus exposition endpoint (`GET /metrics`) tracking unlearning throughput, SVD latency, and leakage distribution.
+- **Interactive DPO Console**: Streamlit-based web interface for live PII remediation, graph traversal preview, and instant compliance certificate export.
 
 ---
 
 ## Quickstart
 
-### 1. Vector Subspace Unlearning (Batch Projection)
-```python
-import numpy as np
-from vector_unforget import SubspaceProjector
-
-projector = SubspaceProjector()
-
-# Embedding batch: 3 vectors of dimension 3
-embeddings = np.array([
-    [0.8, 0.6, 0.0],
-    [0.6, 0.8, 0.0],
-    [0.0, 1.0, 0.0]
-], dtype=np.float32)
-
-# Sensitive concept direction to eliminate
-concept_vector = np.array([1.0, 0.0, 0.0], dtype=np.float32)
-
-# Project orthogonal complement
-unlearned_matrix = projector.project_matrix_orthogonal(embeddings, concept_vector, normalize=True)
-```
-
-### 2. Multi-Hop Graph Resolution
-```python
-from vector_unforget import PIIEntityGraph
-
-graph = PIIEntityGraph(decay_factor=0.85)
-graph.add_relation("John Doe", "john.doe@company.com", relation_type="EMAIL")
-graph.add_relation("john.doe@company.com", "IP_192.168.1.50", relation_type="NETWORK_LOG")
-
-# Resolve all transient linked identities
-erasure_targets = graph.resolve_associated_pii("John Doe", max_hops=2)
-```
-
-### 3. LanceDB Serverless Adapter
-```python
-import lancedb
-from vector_unforget.adapters import LanceDBAdapter
-
-db = lancedb.connect("./data/lancedb")
-table = db.open_table("documents")
-
-adapter = LanceDBAdapter(table=table)
-res = adapter.delete_documents_by_ids(["doc_101", "doc_102"], dry_run=False)
-print(f"Deleted records: {res['deleted_count']}")
-```
-
----
-
-## Running the Test Suite
+### 1. Installation
 
 ```bash
-python -m pytest
+pip install vector-unforget
+```
+
+### 2. Python SDK Example
+
+```python
+from vector_unforget.subspace_projection import SubspaceProjector
+from vector_unforget.compliance import ComplianceCertificateGenerator
+import numpy as np
+
+projector = SubspaceProjector(device="auto")
+embeddings = np.random.randn(100, 768).astype(np.float32)
+sensitive_concept = np.random.randn(768).astype(np.float32)
+
+unlearned = projector.project_matrix_orthogonal(embeddings, sensitive_concept, normalize=True)
+
+cert_gen = ComplianceCertificateGenerator()
+cert = cert_gen.generate_certificate(
+    request_id="REQ-GDPR-001",
+    entity_identifier="user_9941",
+    unlearned_vector_count=100,
+    pre_unlearning_leakage=0.85,
+    post_unlearning_leakage=0.002,
+    regulation="GDPR_Art_17"
+)
+print("Receipt SHA-256:", cert["cryptographic_hash_sha256"])
+```
+
+### 3. Running the REST Gateway
+
+```bash
+uvicorn vector_unforget.api.server:create_app --factory --host 0.0.0.0 --port 8000
+```
+
+### 4. Running the Interactive DPO Console
+
+```bash
+streamlit run vector_unforget/dashboard.py
 ```
 
 ---
 
-## License & Author
+## REST Endpoints Overview
 
-- **Author**: Toskurim ([toskurim@gmail.com](mailto:toskurim@gmail.com))
-- **License**: AGPL-3.0-or-later
-- **Repository**: [https://github.com/Toskurim/vector-unforget](https://github.com/Toskurim/vector-unforget)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/health` | Service status and compute device info |
+| `GET` | `/metrics` | Prometheus metrics for MLOps observability |
+| `POST` | `/v1/unlearn/batch` | High-throughput batch vector orthogonal projection |
+| `POST` | `/v1/graph/resolve` | Cascading multi-hop PII entity discovery |
+| `POST` | `/v1/audit/verify` | Adversarial probe vector leakage verification |
+| `POST` | `/v1/audit/certificate` | Generate signed SHA-256 GDPR/CCPA erasure receipts |
+
+---
+
+## License
+
+Distributed under the **AGPLv3** License. See `LICENSE` for details.
