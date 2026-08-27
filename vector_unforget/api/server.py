@@ -3,13 +3,16 @@ FastAPI Server Application for VectorUnforget REST Gateway.
 """
 
 from typing import Dict, Any
+import time
 import numpy as np
 from fastapi import FastAPI, HTTPException, status
+from fastapi.responses import PlainTextResponse
 
 from vector_unforget import __version__
 from vector_unforget.subspace_projection import SubspaceProjector
 from vector_unforget.graph_resolver import PIIEntityGraph
 from vector_unforget.compliance import ComplianceCertificateGenerator
+from vector_unforget.metrics import metrics_collector
 from vector_unforget.api.models import (
     UnlearnBatchRequest,
     UnlearnBatchResponse,
@@ -36,6 +39,10 @@ def create_app() -> FastAPI:
     async def health_check() -> Dict[str, Any]:
         return {"status": "healthy", "version": __version__, "device": projector.device}
 
+    @app.get("/metrics", response_class=PlainTextResponse, tags=["Observability"])
+    async def prometheus_metrics() -> str:
+        return metrics_collector.generate_prometheus_payload()
+
     @app.post("/v1/unlearn/batch", response_model=UnlearnBatchResponse, tags=["Unlearning"])
     async def unlearn_batch(payload: UnlearnBatchRequest) -> UnlearnBatchResponse:
         if not payload.embeddings or not payload.concept_vector:
@@ -44,6 +51,7 @@ def create_app() -> FastAPI:
                 detail="Embeddings list and concept_vector cannot be empty."
             )
 
+        start_time = time.perf_counter()
         try:
             arr_embeddings = np.array(payload.embeddings, dtype=np.float32)
             arr_concept = np.array(payload.concept_vector, dtype=np.float32)
@@ -59,6 +67,9 @@ def create_app() -> FastAPI:
                 concept_vector=arr_concept,
                 normalize=payload.normalize
             )
+
+            latency = time.perf_counter() - start_time
+            metrics_collector.record_unlearn(len(payload.embeddings), latency)
 
             return UnlearnBatchResponse(
                 status="success",
@@ -76,6 +87,8 @@ def create_app() -> FastAPI:
             graph = PIIEntityGraph(decay_factor=payload.decay_factor)
             resolved = graph.resolve_cascading_entities(payload.primary_entity, max_hops=payload.max_hops)
             formatted = [{"entity": entity, "confidence": conf} for entity, conf in resolved.items()]
+
+            metrics_collector.record_graph_resolve(len(formatted))
 
             return GraphResolveResponse(
                 status="success",
@@ -134,6 +147,7 @@ def create_app() -> FastAPI:
                 scrubbed_terms=payload.scrubbed_terms,
                 regulation=payload.regulation,
             )
+            metrics_collector.record_certificate(payload.post_leakage_score)
             return CertificateResponse(status="success", certificate=cert)
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
