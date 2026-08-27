@@ -1,10 +1,10 @@
-"""
+﻿"""
 VectorUnforget: GDPR/CCPA PII Erasure Engine for Vector Databases.
 Author: Toskurim
 License: AGPLv3
 """
 
-__version__ = "3.7.0"
+__version__ = "3.8.0"
 
 from vector_unforget.engine import VectorUnforgetEngine
 from vector_unforget.graph_resolver import PIIEntityGraph
