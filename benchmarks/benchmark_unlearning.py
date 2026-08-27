@@ -1,7 +1,7 @@
 ﻿"""
 VectorUnforget - Empirical Scalability & Performance Benchmark
 Author: Toskurim
-License: Apache-2.0
+License: AGPL-3.0
 """
 
 import time
