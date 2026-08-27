@@ -1,12 +1,24 @@
 ﻿# VectorUnforget
 
-[![Version](https://img.shields.io/badge/version-4.1.0-blue.svg)](https://github.com/Toskurim/vector-unforget)
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-blue)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-36%2F36%20passing-brightgreen.svg)](https://github.com/Toskurim/vector-unforget)
-[![Observability](https://img.shields.io/badge/observability-Prometheus%20ready-orange.svg)](https://prometheus.io/)
+[![version](https://img.shields.io/badge/version-4.1.0-blue.svg)](https://github.com/Toskurim/vector-unforget)
+[![License](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
+[![python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-blue.svg)](pyproject.toml)
+[![tests](https://img.shields.io/badge/tests-36%2F36%20passing-brightgreen.svg)](tests/)
+[![observability](https://img.shields.io/badge/observability-Prometheus%20ready-orange.svg)](vector_unforget/metrics.py)
 
 **VectorUnforget** is an enterprise-grade AI middleware engine designed for verifiable PII erasure, concept unlearning, and GDPR (Art. 17) / CCPA compliance across vector databases and RAG pipelines.
+
+---
+
+### What It Does in Plain English
+
+When a user requests their data be forgotten under GDPR/CCPA, traditional vector databases force you to delete records and re-index millions of embeddings from scratch—a process taking minutes or hours and burning substantial compute.
+
+**VectorUnforget solves this in milliseconds without re-indexing:**
+1. **Understands Natural Language Intent**: Accepts zero-config commands (e.g., *"Forget all financial records for John Doe"*) and automatically extracts entities and sensitive concept vectors via lightweight NLP/heuristics.
+2. **Instant In-Place Unlearning**: Projects the embedding space into an orthogonal subspace ($O(N \cdot D)$), mathematically neutralizing the target concept to zero residual leakage while preserving the integrity of all unrelated vector relationships.
+3. **Universal Vector DB Support**: Connects natively via unified adapters to **Milvus, Elasticsearch, Pinecone, Weaviate, LanceDB, Qdrant, and ChromaDB**, as well as **LangChain** and **LlamaIndex** RAG pipelines.
+4. **Cryptographic Proof of Erasure**: Automatically generates tamper-proof **SHA-256 cryptographic audit certificates** for compliance officers and Data Protection Officers (DPO), tracked in real-time via Prometheus metrics and a built-in Streamlit dashboard.
 
 ---
 
