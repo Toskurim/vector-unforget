@@ -1,70 +1,29 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "vector-unforget"
-version = "4.0.0"
-authors = [
-  { name = "Toskurim", email = "toskurim@gmail.com" }
-]
-description = "GDPR/CCPA compliant cascading PII erasure and subspace vector unlearning framework for vector databases."
+version = "4.1.0"
+description = "Enterprise-grade AI middleware for verifiable PII erasure, concept unlearning, and GDPR/CCPA compliance across vector databases."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "AGPL-3.0-or-later" }
-classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Information Technology",
-    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Topic :: Database",
-    "Topic :: Security :: Cryptography",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence"
-]
+license = { text = "AGPL-3.0" }
 dependencies = [
     "numpy>=1.24.0",
-    "spacy>=3.5.0",
-    "pydantic>=2.0.0"
+    "scikit-learn>=1.2.0",
+    "torch>=2.0.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.22.0",
+    "pydantic>=2.0.0",
+    "streamlit>=1.28.0",
+    "prometheus-client>=0.19.0"
 ]
 
 [project.optional-dependencies]
-api = [
-    "fastapi>=0.110.0",
-    "uvicorn[standard]>=0.28.0",
-    "httpx>=0.27.0"
+dev = [
+    "pytest>=7.4.0",
+    "httpx>=0.24.0",
+    "build",
+    "twine"
 ]
-test = [
-    "pytest>=8.0.0",
-    "fastapi>=0.110.0",
-    "httpx>=0.27.0"
-]
-all = [
-    "torch>=2.0.0",
-    "chromadb>=0.4.0",
-    "qdrant-client>=1.6.0",
-    "pinecone-client>=3.0.0",
-    "weaviate-client>=4.0.0",
-    "lancedb>=0.4.0",
-    "pymilvus>=2.3.0",
-    "elasticsearch>=8.0.0",
-    "psycopg2-binary>=2.9.0",
-    "langchain-core>=0.1.0",
-    "llama-index-core>=0.10.0",
-    "fastapi>=0.110.0",
-    "uvicorn[standard]>=0.28.0",
-    "httpx>=0.27.0"
-]
-
-[project.urls]
-"Homepage" = "https://github.com/Toskurim/vector-unforget"
-"Bug Tracker" = "https://github.com/Toskurim/vector-unforget/issues"
-"Source" = "https://github.com/Toskurim/vector-unforget"
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["vector_unforget*"]
