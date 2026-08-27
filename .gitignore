@@ -6,3 +6,7 @@ venv/
 *.json
 !.json/
 .DS_Store
+
+*.egg-info/
+dist/
+build/
