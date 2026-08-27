@@ -2,25 +2,15 @@
 
 ## Version History
 
+### [v3.4.0] - 2026-08-27
+- **FastAPI Microservice Gateway**: Implemented high-throughput REST API with `/v1/unlearn/batch`, `/v1/graph/resolve`, and `/v1/audit/verify` endpoints.
+- **Pydantic v2 Schemas**: Strict payload validation for array dimensions and numerical stability constraints.
+- **Production Containerization**: Multi-stage lightweight Docker runtime.
+- **Test Suite**: 26/26 tests passing across all endpoints, adapters, and algebra engines.
+
 ### [v3.3.0] - 2026-08-26
-- **Milvus Adapter**: Native distributed entity deletion via primary key and scalar expressions.
-- **Elasticsearch & OpenSearch Adapter**: Full support for index-level document scrubbing and k-NN dense vector erasure.
-- **Hybrid Search Erasure**: Introduced `HybridSearchScrubber` for dual-phase dense embedding orthogonal projection and sparse BM25 lexical token sanitization.
-- **Test Suite**: 23/23 tests passing across core linear algebra, adapters, and middleware.
+- **Milvus & Elasticsearch Adapters**: Full coverage for distributed vector DBs and dense k-NN indices.
+- **Hybrid Search Erasure**: Dual-phase sparse BM25 token scrubbing and dense subspace orthogonalization.
 
 ### [v3.2.0] - 2026-08-26
-- **GPU Acceleration**: Integrated PyTorch/CUDA execution into `SubspaceProjector` with transparent fallback to NumPy.
-- **Multidimensional Concept Discovery**: Implemented Singular Value Decomposition (SVD) for extracting rank-$k$ orthonormal bases from semantic concept clusters.
-- **Matrix Hyperplane Projection**: Added `project_matrix_multisubspace` for batch orthogonalization against multidimensional concept directions.
-
----
-
-## Active Roadmap
-
-### Phase 12: v3.4.0 - Enterprise Microservice Architecture
-- [ ] **12.1 FastAPI High-Throughput REST Gateway**
-  - Asynchronous endpoints: `/v1/unlearn/batch`, `/v1/graph/resolve`, `/v1/audit/verify`.
-  - Pydantic v2 schemas and validation models.
-- [ ] **12.2 Production Containerization & Deployment**
-  - Multi-stage Docker build (CPU & CUDA profiles).
-  - Helm charts and Prometheus metrics instrumentation.
+- **GPU Acceleration & SVD**: PyTorch CUDA integration and rank-$k$ concept subspace discovery.
