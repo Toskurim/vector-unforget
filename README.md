@@ -124,3 +124,46 @@ VectorUnforget is distributed under the **GNU Affero General Public License v3.0
 
 
 
+
+
+## 🏢 Enterprise Grade: Homonym Disambiguation & Lossless Rollback
+
+In mission-critical enterprise environments, blind semantic unlearning risks homonym collisions (scrubbing unrelated individuals sharing a name) and accidental data loss. VectorUnforget provides native modules to eliminate both failure modes:
+
+### 1. Metadata-Scoped Scrubber (Homonym Safety)
+Enforces multi-predicate metadata gating before isolating the sensitive concept subspace. Even if two records share identical names, only the targeted subject (user_id, ssn, 	enant_id) is scrubbed:
+
+\\python
+from vector_unforget.enterprise import MetadataScopedScrubber
+
+scrubber = MetadataScopedScrubber(embedding_dim=1536)
+
+# Extracts centroid strictly from vectors matching user_id == 'user_101'
+centroid, target_indices = scrubber.filter_and_extract_centroid(
+    embeddings=active_embeddings,
+    metadata_list=metadata_records,
+    target_entity='Mario Rossi',
+    match_predicates={'user_id': 'user_101', 'tenant_id': 'prod_eu'}
+)
+\
+### 2. Transactional Delta Ledger & Lossless Rollback
+Every unlearning operation calculates and logs the orthogonal deviation vector $\delta_i = (\hat{c}^T x_i)\hat{c}$ in a cryptographically signed buffer with a configurable TTL window. If an erasure was requested in error, vectors are restored instantly without rebuilding indices:
+
+\\python
+from vector_unforget.enterprise import UnlearningRollbackManager
+
+rollback_mgr = UnlearningRollbackManager(ttl_seconds=604800)  # 7-day safe window
+
+# Stage unlearning with automatic cryptographic delta capture
+scrubbed_vectors, tx_id = rollback_mgr.stage_unlearning(
+    embeddings=active_embeddings,
+    target_indices=target_indices,
+    centroid=centroid
+)
+
+# Accidental deletion? Revert in O(1) time complexity
+restored_vectors = rollback_mgr.rollback_transaction(
+    current_embeddings=scrubbed_vectors,
+    tx_id=tx_id
+)
+\
