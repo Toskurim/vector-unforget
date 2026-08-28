@@ -84,3 +84,4 @@ For commercial enterprises seeking to integrate VectorUnforget into closed-sourc
 
 * **Maintainer:** `toskurim` (GitHub: `Toskurim/vector-unforget`)
 * **PyPI Distribution:** `pip install vector-unforget`
+

@@ -2,6 +2,10 @@
 
 ## Version History
 
+### [v4.2.0] - 2026-08-28
+* **Metadata-Scoped Entity Disambiguation**: Implemented `MetadataScopedScrubber` to eliminate homonym collisions via strict multi-predicate filtering (e.g. `user_id`, `tenant_id`).
+* **Transactional Delta Ledger & Safe Rollback**: Added `UnlearningRollbackManager` enabling deterministic, lossless vector restoration with configurable cryptographic TTL retention.
+* **Test Suite Expansion**: Reached 38/38 passing tests with complete enterprise coverage.
 ### [v4.1.0] - 2026-08-27
 * **Official PyPI Distribution**: Successfully packaged and deployed `vector-unforget` to PyPI for direct `pip install vector-unforget` consumption.
 * **Dual-Licensing Strategy & IP Protection**: Formalized AGPL-3.0 copyleft architecture with explicit commercial dual-licensing pathways for proprietary enterprise embeddings.
@@ -46,4 +50,5 @@
 ### [v4.1.0] - 2026-08-27
 - **Scalability & Performance Benchmarks**: Added comprehensive quantitative benchmark suite (enchmarks/benchmark_unlearning.py) evaluating orthogonal projection vs HNSW re-indexing up to 1M vectors @ 768d.
 - **Audit & Compliance**: Documented 70x-93x latency reduction and 100% concept leakage scrub with deterministic SHA-256 GDPR Art. 17 receipts in BENCHMARKS.md.
+
 

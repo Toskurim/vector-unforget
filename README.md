@@ -122,3 +122,4 @@ VectorUnforget is distributed under the **GNU Affero General Public License v3.0
 * **Commercial / Enterprise Licensing**: For proprietary software embedding, closed-source SaaS integrations, or custom enterprise terms without AGPL-3.0 copyleft obligations, please open a GitHub Discussion or reach out directly via repository contact channels.
 
 
+
