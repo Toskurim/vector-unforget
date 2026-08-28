@@ -1,10 +1,11 @@
 ﻿# Deterministic Vector Unlearning via Orthogonal Subspace Projection
 
-**Subtitle:** Real-Time, Zero-Leakage Concept Oblivion & Cryptographic GDPR/CCPA Compliance for Enterprise Vector Stores  
+**Subtitle:** Real-Time, Zero-Leakage Concept Oblivion, Homonym Disambiguation & Transactional Rollback for Enterprise Vector Stores  
 **Author:** Toskurim / VectorUnforget Core Team  
 **Date:** August 2026  
 **License:** AGPL-3.0 (Commercial Dual-Licensing Available)  
-**Package:** `vector-unforget` (v4.1.0 on PyPI)
+**Package:** `vector-unforget` (v4.2.0 on PyPI)  
+**Test Suite:** 38/38 passing
 
 ---
 
@@ -14,7 +15,7 @@ Modern enterprise AI systems relying on Retrieval-Augmented Generation (RAG) and
 
 When a user or sensitive entity requests data deletion, standard vector databases require dropping entries and rebuilding high-dimensional approximate nearest neighbor (ANN) indices (e.g., HNSW, IVF-PQ). In enterprise deployments with millions of embeddings, re-indexing costs thousands of dollars in compute, degrades query throughput, and induces hours of latency.
 
-**VectorUnforget** introduces a mathematically closed-form, deterministic middleware approach. By projecting the dense embedding space onto an orthogonal subspace orthogonal to the sensitive concept centroid, VectorUnforget achieves **instantaneous concept erasure in $O(N \cdot D)$ time complexity**, guaranteeing zero residual leakage while preserving vector database integrity and topological distance relations.
+**VectorUnforget** introduces a mathematically closed-form, deterministic middleware approach. By projecting the dense embedding space onto an orthogonal subspace orthogonal to the sensitive concept centroid, VectorUnforget achieves **instantaneous concept erasure in $O(N \cdot D)$ time complexity**, guaranteeing zero residual leakage while preserving vector database integrity, topological distance relations, and multi-tenant isolation.
 
 ---
 
@@ -44,19 +45,42 @@ Because $\langle x_{\text{scrubbed}}, \hat{c} \rangle = 0$, cosine similarity be
 
 ---
 
-## 3. Empirical Benchmarks & Complexity Analysis
+## 3. Enterprise Safety & Integrity Architecture
+
+### 3.1 Metadata-Scoped Homonym Disambiguation
+Natural language PII extraction alone carries the risk of homonym collisions (e.g., distinct individuals sharing identical names across different tenants). VectorUnforget implements `MetadataScopedScrubber`, enforcing strict boolean predicate validation ($\mathcal{M}(v) \models \mathcal{P}$) prior to centroid synthesis:
+
+$$S_{\text{scoped}} = \{ v_i \in V \mid \text{NER}(v_i) \cap \mathcal{E} \neq \emptyset \land \mathcal{M}(v_i) \models \mathcal{P}_{\text{target}} \}$$
+
+This guarantees that unlearning vectors are isolated strictly to the requesting subject (`user_id`, `tenant_id`, `record_id`), preventing collateral semantic erasure on unassociated entities.
+
+### 3.2 Transactional Delta Ledger & Lossless Rollback
+To mitigate accidental or contested erasure requests, VectorUnforget incorporates `UnlearningRollbackManager`. During projection, the exact orthogonal deviation component is recorded in a cryptographically sealed delta ledger with configurable TTL:
+
+$$\delta_i = (\hat{c}^T x_i) \hat{c}$$
+
+Restoration is mathematically exact and instantaneous ($O(1)$ lookup per vector):
+
+$$x_{\text{original}} = x_{\text{scrubbed}} + \delta_i$$
+
+This eliminates the risk of permanent data corruption without requiring expensive full-database backup restoration.
+
+---
+
+## 4. Empirical Benchmarks & Complexity Analysis
 
 | Metric | Traditional Vector DB Re-indexing | VectorUnforget ($O(N \cdot D)$ Projection) |
 | :--- | :--- | :--- |
 | **Complexity** | $O(N \log N \cdot D)$ to $O(N \cdot K \cdot D)$ | **$O(N \cdot D)$** |
 | **500k Embeddings Latency** | 4.2 – 18.5 seconds (HNSW rebuild) | **< 60 milliseconds** ($72\times$ Speedup) |
 | **Service Interruption** | Index locks / degraded search QPS | **Zero downtime (In-place streaming)** |
-| **Information Retention** | Hard deletion (loss of peripheral context) | **Topology-preserving orthogonal scrub** |
+| **Reversibility** | Requires cold backup restore | **Instant lossless delta rollback** |
+| **Homonym Safety** | High collision risk without ID scoping | **Deterministic metadata predicate gating** |
 | **Audit Compliance** | DB commit logs only | **Cryptographic SHA-256 Receipts** |
 
 ---
 
-## 4. Cryptographic Audit Trail & Regulatory Architecture
+## 5. Cryptographic Audit Trail & Regulatory Architecture
 
 For regulatory compliance (GDPR Art. 17 / CCPA), mathematical erasure must be provable to external data protection officers (DPOs). VectorUnforget couples each orthogonal projection pass with a cryptographic state machine:
 
@@ -67,7 +91,7 @@ For regulatory compliance (GDPR Art. 17 / CCPA), mathematical erasure must be pr
 
 ---
 
-## 5. Deployment & Ecosystem Integration
+## 6. Deployment & Ecosystem Integration
 
 VectorUnforget operates either as a high-throughput **FastAPI Microservice (REST/gRPC)** or as an embedded **Python SDK Middleware** with unified adapter interfaces across:
 * **Vector Databases:** Qdrant, Milvus, ChromaDB, Pinecone, Weaviate, LanceDB, Elasticsearch.
@@ -76,7 +100,7 @@ VectorUnforget operates either as a high-throughput **FastAPI Microservice (REST
 
 ---
 
-## 6. Commercial & Licensing Model
+## 7. Commercial & Licensing Model
 
 VectorUnforget is distributed under the **AGPL-3.0 copyleft license** for open-source evaluation.
 
@@ -84,5 +108,3 @@ For commercial enterprises seeking to integrate VectorUnforget into closed-sourc
 
 * **Maintainer:** `toskurim` (GitHub: `Toskurim/vector-unforget`)
 * **PyPI Distribution:** `pip install vector-unforget`
-
-
