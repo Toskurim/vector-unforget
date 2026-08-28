@@ -16,19 +16,20 @@
 When a user requests their data be forgotten under GDPR/CCPA, traditional vector databases force you to delete records and re-index millions of embeddings from scratch—aprocess taking minutes or hours and burning substantial compute.
 
 **VectorUnforget solves this in milliseconds without re-indexing:**
-0. **Understands Natural Language Intent**: Accepts zero-config commands (e.g., *Forget all financial records for John Doe*) and automatically extracts entities and sensitive concept vectors via lightweight NLP/heuristics.
-1. **Instant In-Place Unlearning**: Projects the embedding space into an orthogonal subspace ($O@N\pt\eter)), mathematically neutralizing the target concept to zero residual leakage while preserving the integrity of all unrelated vector relationships.
-2. **Universal Vector DB Support**: Connects natively via unified adapters to **Milvus, Elasticsearch, Pinecone, Weaviate, LanceDB, Qdrant, and ChromaDB**, as well as **LangChain** and **LlamaIndex** RAG pipelines.
-3. **Cryptographic Proof of Erasure**: Automatically generates tamper-proof **SHA-256 cryptographic audit certificates** for compliance officers and Data Protection Officers (DPO), tracked in real-time via Prometheus metrics and a built-in Streamlit dashboard.
+
+1. **Understands Natural Language Intent**: Accepts zero-config commands (e.g., *Forget all financial records for John Doe*) and automatically extracts entities and sensitive concept vectors via lightweight NLP and heuristics.
+2. **Instant In-Place Unlearning**: Projects the embedding space into an orthogonal subspace ($O(N \cdotD)$), mathematically neutralizing the target concept to zero residual leakage while preserving the integrity of all unrelated vector relationships.
+3. **Universal Vector DB Support**: Connects natively via unified adapters to **Milvus**, **Elasticsearch**, **Pinecone**, **Weaviate**, **LanceDB**, **Qdrant**, and **ChromaDB**, as well as **LangChain** and **LlamaIndex** RAG pipelines.
+4. **Cryptographic Proof of Erasure**: Automatically generates tamper-proof **SHA-256 cryptographic audit certificates** for compliance officers and Data Protection Officers (DPO), tracked in real-time via Prometheus metrics and a built-in Streamlit dashboard.
 
 ---
 
 ## Core Capabilities
 
-- ~*ISubspace Orthogonal Projection**: Deterministic concept unlearning using SVD and PyTorch CUDA/CPU acceleration without full index re-indexing.
+- **Subspace Orthogonal Projection**: Deterministic concept unlearning using SVD and PyTorch CUDA/CPU acceleration without full index re-indexing.
 - **Cascading PII Entity Graph**: Multi-hop entity resolution with exponential confidence decay to erase connected identities.
 - **Hybrid Search Scrubbing**: Unified dense vector orthogonalization combined with sparse lexical BM25 token redaction.
-- **Production Vector DB Adapters**: Native drivers for **Milvus**, **Elasticsearch / OpenSearch**, **Pinecone**, **Weaviate**, and **LanceDB**.
+- **Production Vector"D Adapters**: Native drivers for **Milvus, Elasticsearch / OpenSearch, Pinecone, Weaviate, and LanceDB**.
 - **RAG Framework Integrations**: Native middleware for **LangChain** (`VectorUnforgetRetriever`) and **LlamaIndex** (`VectorUnforgetNodePostprocessor`).
 - **Cryptographic Audit Receipts**: Tamper-evident **SHA-256** erasure certificates verifying *Zero Residual Leakage* for Data Protection Officers.
 - **MLOps Telemetry**: Built-in Prometheus exposition endpoint (`GET /metrics`) tracking unlearning throughput, SVD latency, and leakage distribution.
