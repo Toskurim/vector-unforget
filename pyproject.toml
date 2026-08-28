@@ -1,29 +1,33 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "vector-unforget"
-version = "4.1.0"
-description = "Enterprise-grade AI middleware for verifiable PII erasure, concept unlearning, and GDPR/CCPA compliance across vector databases."
+version = "4.2.0"
+description = "Enterprise-grade GDPR/CCPA Vector Unlearning & PII Oblivion Middleware."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "AGPL-3.0" }
+license = {text = "AGPL-3.0"}
+authors = [
+    {name = "Toskurim"}
+]
 dependencies = [
     "numpy>=1.24.0",
-    "scikit-learn>=1.2.0",
+    "scipy>=1.10.0",
     "torch>=2.0.0",
+    "prometheus-client>=0.16.0",
     "fastapi>=0.100.0",
     "uvicorn>=0.22.0",
-    "pydantic>=2.0.0",
-    "streamlit>=1.28.0",
-    "prometheus-client>=0.19.0"
+    "pydantic>=2.0.0"
 ]
 
 [project.optional-dependencies]
+dashboard = ["streamlit>=1.28.0"]
 dev = [
-    "pytest>=7.4.0",
-    "httpx>=0.24.0",
-    "build",
-    "twine"
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black",
+    "flake8",
+    "mypy"
 ]
